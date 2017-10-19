@@ -15,7 +15,10 @@ var
     i: integer = 0;
 begin
     while not oracle('Is your number equal to ' + IntToStr(i) + '? ') do
-        i := i + 1;
+        if i <= 0 then
+            i := -i + 1
+        else
+            i := -i;
     linear_search := i;
 end;
 

@@ -6,8 +6,6 @@
 
 \usepackage[parfill]{parskip}
 
-\usepackage{hyperref}
-
 \usepackage[utf8]{inputenc}
 
 \usepackage{listings}
@@ -172,10 +170,83 @@ end;
     \section{Linear Search}
     One approach to this is by a ``linear search''. This involved, basically, a
     kind of ``brute force'' approach - sequentially making guesses until one is
-    correct.
+    correct. The single advantage of this algorithm is that it has no upper
+    bound, and can even feasibly be made to work without a lower bound.
+    
+    \subsection{Positive integers}
+    The most simple approach is to assume the number is some $x$ such that
+    \begin{equation}
+        x \in \{0\} \cup \mathbb{N}
+    \end{equation}
+    ie the set of natural numbers including 0. Guesses can then be made
+    sequentially like so:
+
+\begin{lstlisting}[caption=Linear search on $\mathbb{N}$ pseudocode]
+Set the current ``guess'' to 0
+While the guess is wrong
+    Increment the guess by one
+\end{lstlisting}
+
+    In Pascal, this could be implemented like so:
+
+\begin{lstlisting}[language=Pascal, caption=Linear search on $\mathbb{N}$ implementation]
+function linear_search: integer;
+var
+    i: integer = 0;
+begin
+    while not oracle('Is your number equal to ' + IntToStr(i) + '? ') do
+		i := i + 1;
+    linear_search := i;
+end;
+\end{lstlisting}
+
+    \subsection{All integers}
+    The flaw in the previous program is that if the user sneakily decides to
+    think of a negative number, this program won't ever terminate. This can be
+    solved by using some enumeration of the set of all integers $\mathbb{Z}$.
+    The simplest of these is the sequence 0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5,
+    6, -6 \ldots This sequence doesn't duplicate 0, and has the property of
+    ``spreading out'' from 0. A sequence kind of like this with a lot of
+    overhead could be represented by simply generating the set of natural
+    numbers $\mathbb{N}$ and then taking each of these and its negation. However,
+    if we consider it as more of a mathematical sequence, it \textit{can} be
+    represented by a closed formula
+    \begin{equation}
+    U_n = -(-1)^n \left\lfloor \frac{n}{2} \right\rfloor
+    \end{equation}
+
+    However, it's much better represented inductively with a condition:
+
+	\begin{align*}
+        U_1 &= 0\\
+		U_{n + 1} &= 
+		\begin{cases}
+			-U_n + 1        & \text{if } x \leq 0\\
+			-U_n            & \text{if } x > 0
+		\end{cases}\\
+	\end{align*}
+
+    This can also quite easily be implemented in code:
+
+\begin{lstlisting}[language=Pascal, caption=Linear search on $\mathbb{Z}$ implementation]
+function linear_search: integer;
+var
+    i: integer = 0;
+begin
+    while not oracle('Is your number equal to ' + IntToStr(i) + '? ') do
+        if i <= 0 then
+            i := -i + 1
+        else
+            i := -i;
+    linear_search := i;
+end;
+\end{lstlisting}
+
+    This does not need any double loops, duplicate code to explicitly negate
+    each number, or extra boilerplate logic to prevent duplicating a 0.
 
     \section{Source}
     The full project in its directory structure, including this document, can
-    be found at \url{https://github.com/elterminad0r/assignment_guessing}.
+    be found at \verb|https://github.com/elterminad0r/assignment_guessing|.
 
 \end{document}
