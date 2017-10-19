@@ -8,3 +8,5 @@ bin
 *.toc
 *.bbl
 *.blg
+*.dvi
+*.lol
