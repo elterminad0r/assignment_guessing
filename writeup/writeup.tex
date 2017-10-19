@@ -1,0 +1,179 @@
+\documentclass{article}
+\title{Guessing game assessment}
+\author{Izaak van Dongen}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\usepackage[parfill]{parskip}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
+
+\begin{document}
+    \maketitle
+    \tableofcontents
+    \lstlistoflistings
+
+    \section{Introduction}
+    This is an assignment about guessing games and appropriate strategies. This
+    is linked to searching algorithms, although in this case it's a sort of
+    searching algorithm where you're searching for the item, rather than
+    searching for the index of a known item.
+
+    Both binary searches and linear
+    searches can be adapted to that end, as both work by comparisons of the
+    target and ``guesses''. These are analogous to asking the user questions - in
+    the case of linear search, the question ``is your number equal to \ldots?'',
+    and in the case of binary search, ``is your number greater than \ldots?''
+
+    Therefore, essentially we need only to implement binary and linear search
+    where the ``comparison function'' delegates to the user.  However,
+    interpolation search, which has the complexity $O(\log\log n)$ (on uniform
+    data sets, which we can assume a user-generated target is), requires
+    knowledge of the \textit{value} of the target, so it can be interpolated on
+    the current upper and lower bounds. This means we will only achieve the
+    $O(\log n)$ complexity of binary search.
+
+    Code for this assignment has been written in Pascal, targeted at and tested
+    in fpc (version 3.0.0+dfsg-2), using mode \verb|{$MODE OBJFPC}|. This
+    document was developed in \LaTeX.
+
+    \section{Boilerplate}
+    To create a program that performs such a search to guess a number, some
+    utility functions will be needed, that aren't really particularly
+    algorithmic. I'm implementing these in a Pascal unit, named
+    \verb|PUser.pas|.
+
+    \subsection{oracle}
+    This is a function that can retrieve a boolean value from the user. It's
+    named ``oracle'' as it acts as the comparison oracle the search functions
+    must appeal to. The only parameter it takes is a message to display. The
+    unix-inspired ruling it uses is that if an input starts with a ``y'', it is
+    considered affirmative, and negative otherwise. The broad approach it uses
+    is like this:
+
+\begin{lstlisting}[caption=oracle pseudocode]
+If the user's response is empty, the result is negative
+If the user's response is not empty and begins with a lower or uppercase "y", the result is positive
+Otherwise, the result is negative
+\end{lstlisting}
+
+    The catch for lower or uppercase is implemented by coercing the entire
+    string to lowercase, using \verb|LowerCase|. It's implemented as:
+
+\begin{lstlisting}[language=Pascal, caption=oracle implementation]
+function oracle(msg: string): boolean;
+var
+    usr_input: string;
+begin
+    write(msg);
+    readln(usr_input);
+    if (length(usr_input) > 0) and (LowerCase(usr_input)[1] = 'y') then
+        oracle := true
+    else
+        oracle := false;
+end;
+\end{lstlisting}
+
+    NB: The lack of semicolon in line 8 is on purpose, as this is how an
+    if-else statement works in Pascal (as it's considered one statement, the
+    whole affair needs one semicolon).
+
+    \subsection{read\_lohi}
+    I wanted to provide some facility for setting the upper bound and lower
+    bound of a binary search. As this function wants to kind of ``return'' two
+    things, it has a nontrivial call signature, which is worth thinking about.
+    One possible solution might be to define some kind of \verb|Bounds|
+    container class that can hold both values.
+    
+    However, Pascal provides a way to output multiple values, and this is
+    through an \verb|out| parameter. It could also be done using a \verb|var|
+    parameter, although there's a slight difference. Both of these work, and in
+    both cases the variable is passed by reference, but \verb|out| is slightly
+    more specific - it's used when the input value of the variable is unneeded,
+    which in this case is true, as I'm only concerned with using it as a channel
+    for output. Once I've declared something as an \verb|out| parameter, I can
+    assign to it and the caller can then use the new value (like the
+    \verb|readln| function).
+
+    I will be reading these from the command line arguments, as I'm developing
+    it as a console application. As this is quite a simple application, I will
+    just manually parse arguments with some if statements. The function will
+    roughly do the following:
+
+\begin{lstlisting}[caption=read\_lohi pseudocode]
+Gather default values for the upper bound and lower bound
+If a first command line argument is present
+    Set the lower bound to this number
+Otherwise, set it to the default
+If a second command line argument is present
+    Set the upper bound to this number
+Otherwise, set it to the default
+If either argument given was not an integer
+    Set both to the defaults
+\end{lstlisting}
+
+    This is then implemented in Pascal using \verb|ParamStr| and
+    \verb|ParamCount|. Interestingly, as it doesn't return anything in the
+    conventional manner, this isn't a function but a procedure.
+
+\begin{lstlisting}[language=Pascal, caption=read\_lohi implementation]
+procedure read_lohi(lo_default, hi_default: integer;
+                    out low_val, hi_val: integer);
+begin
+    try
+        if ParamCount >= 1 then
+            low_val := StrToInt(ParamStr(1))
+        else
+            low_val := lo_default;
+        if ParamCount >= 2 then
+            hi_val := StrToInt(ParamStr(2))
+        else
+            hi_val := hi_default;
+    except
+        on E: EConvertError do begin
+            writeln('Conversion error occurred, reverting to defaults');
+            low_val := lo_default;
+            hi_val := hi_default;
+        end;
+    end;
+end;
+\end{lstlisting}
+
+    \section{Linear Search}
+    One approach to this is by a ``linear search''. This involved, basically, a
+    kind of ``brute force'' approach - sequentially making guesses until one is
+    correct.
+
+    \section{Source}
+    The full project in its directory structure, including this document, can
+    be found at \url{https://github.com}.
+
+\end{document}
