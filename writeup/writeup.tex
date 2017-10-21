@@ -1,8 +1,9 @@
 \documentclass{article}
-\title{Guessing game assignment}
+\title{``Guessing game'' assignment}
 \author{Izaak van Dongen}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{commath}
 
 \usepackage[parfill]{parskip}
 
@@ -65,11 +66,22 @@
     in fpc (version 3.0.0+dfsg-2), using mode \verb|{$MODE OBJFPC}|. This
     document was developed in \LaTeX.
 
+    Where I've deemed it necessary, I've left comments, although often the code
+    really is relatively simple, and the functions are sufficiently described
+    by their names and the simplicity of the operations (``self-documented'').
+
+    At some points, I use some algebraic notation. I use $\wedge$, which means
+    logical and, to indicate that multiple statements are true.
+
     \section{Boilerplate}
     To create a program that performs such a search to guess a number, some
     utility functions will be needed, that aren't really particularly
     algorithmic. I'm implementing these in a Pascal unit, named
-    \verb|PUser.pas|.
+    \verb|PUser.pas|. Having these in a separate unit means the code concerned
+    with the actual algorithms can be more "purely" expressed. It also means
+    that that code can become more modular itself, as another caller could
+    feasibly implement their own boilerplate, and the abstracted algorithms
+    will still work.
 
     \subsection{oracle}
     This is a function that can retrieve a boolean value from the user. It's
@@ -212,7 +224,7 @@ end;
     if we consider it as more of a mathematical sequence, it \textit{can} be
     represented by a closed formula
     \begin{equation}
-    U_n = -(-1)^n \left\lfloor \frac{n}{2} \right\rfloor
+    U_n = (-1)^n \left\lfloor \frac{n}{2} \right\rfloor
     \end{equation}
 
     However, it's much better represented inductively with a condition:
@@ -244,6 +256,114 @@ end;
 
     This does not need any double loops, duplicate code to explicitly negate
     each number, or extra boilerplate logic to prevent duplicating a 0.
+
+    \subsection{Rational numbers}
+
+    Interestingly, a linear search can also be generalised to work on the set
+    of rational numbers $\mathbb{Q}$. This is closely related to the fact that
+    the cardinality of the set of rationals
+
+    \begin{equation}
+    \abs{\mathbb{Q}} = \abs{\mathbb{N}}
+    \end{equation}
+
+    This means there exists a bijection from $\mathbb{N}$ to $\mathbb{Q}$, and
+    hence there must exist some enumeration of the elements of $\mathbb{Q}$,
+    which can be obtained by applying the bijection to all the naturals in
+    order.
+    
+    We can easily come up with such an enumeration by considering the set of
+    rationals as a grid with two integer axes representing numerator and
+    denominator (in other words, the set $\mathbb{Z}^2$. We can then ``spiral
+    outwards'' from the origin. This will be easiest to do in squares aligned
+    with the axes, through which we move in the anticlockwise direction,
+    although it could also be done in the diagonal direction.  The first part
+    of the grid, in terms of co-ordinate pairs, will be like this:
+
+    \begin{equation}
+    \begin{matrix}
+    (-2, 2) & (-1, 2) & (0, 2) & (1, 2) & (2, 2)\\
+    (-2, 1) & (-1, 1) & (0, 1) & (1, 1) & (2, 1)\\
+    (-2, 0) & (-1, 0) & (0, 0) & (1, 0) & (2, 0)\\
+    (-2, -1) & (-1, -1) & (0, -1) & (1, -1) & (2, -1)\\
+    (-2, -2) & (-1, -2) & (0, -2) & (1, -2) & (2, -2)\\
+    \end{matrix}
+    \end{equation}
+
+    Where the first couple of terms of the enumeration are:
+
+    \begin{equation}
+    \begin{split}
+    &(0, 0),\\
+    &(1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0),\\
+    &(2, 1), (2, 2), (1, 2), (0, 2), (-1, 2), (-2, 2), (-2, 1), (-2, 0), \ldots\\
+    &(3, 1), (3, 2), \ldots
+    \end{split}
+    \end{equation}
+
+    Note that the first term is $\frac{0}{0}$. This technically is not a
+    rational numbers as its value is undefined, but we can deal with that later
+    - first we can establish the enumeration, and then ``filter'' it for
+    unwanted pairings. Note also that this enumeration will not preserve any
+    conception of size of fractions - $\frac{1}{2}$ will occur long before
+    $\frac{1}{100}$.
+
+    We know that this path will reach all of the points on this grid, hence
+    this enumeration will eventually reach the target - and this is where a
+    linear search is useful. First, we will need to consider how we can
+    implement this enumeration. We can consider the desired behaviour on each
+    side of a square, and the conditions describing each such side.
+
+    Let us consider two sequences $X$ and $Y$, where we say that
+
+    \begin{equation}
+    \frac{X_i}{Y_i}
+    \end{equation}
+
+    is the ith element of our enumeration.
+
+    We know the first term is $frac{0}{0}$. Hence, we have $X_1 = 0 \wedge Y_1
+    = 0$
+
+    We also say that we jump to the next layer of square when we ``hit'' the
+    positive x-axis. To start the next square, we move to the right one and up
+    one, as if we just move to the right, we stay on the axis and move right
+    again. This means $X_i \geq 0 \wedge Y_i = 0 \Rightarrow X_{i +
+    1} = X_i + 1 \wedge Y_{i + 1} = 1$
+
+    If we are on the right side of the square, we know that $X_i$ is positive.
+    We also know that $-X_i \leq Y_i < X_i$. When this is true, we want to move
+    ``up'', so increment $Y$. We also know that $Y_i = 0$ is considered a
+    special case. Hence, we say that
+
+    \begin{equation}
+      X_i > 0 \wedge
+      -X_i \leq Y_i < X_i \wedge
+      Y_i \neq 0
+    \Rightarrow
+      X_{i + 1} = X_i \wedge
+      Y_{i + 1} = Y_i + 1
+    \end{equation}
+
+    We can produce similar definitions for the other three sides:
+
+    \begin{align*}
+      Y_i > 0 \wedge
+      -Y_i < X_i \leq Y_i
+    & \Rightarrow
+      X_{i + 1} = X_i - 1 \wedge
+      Y_{i + 1} = Y_i\\
+      X_i < 0 \wedge
+      X_i \leq Y_i < -X_i
+    & \Rightarrow
+      X_{i + 1} = X_i \wedge
+      Y_{i + 1} = Y_i - 1\\
+      Y_i < 0 \wedge
+      Y_i \leq X_i < -Y_i
+    & \Rightarrow
+      X_{i + 1} = X_i + 1 \wedge
+      Y_{i + 1} = Y_i\\
+    \end{align*}
 
     \section{Source}
     The full project in its directory structure, including this document, can
