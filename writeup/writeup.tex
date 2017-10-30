@@ -12,6 +12,10 @@
 
 \usepackage[utf8]{inputenc}
 
+\usepackage{graphicx}
+
+\graphicspath{ {images/} }
+
 \usepackage{listings}
 \usepackage{color}
 
@@ -44,6 +48,7 @@
     \maketitle
     \tableofcontents
     \lstlistoflistings
+    \listoffigures
 
     \section{Introduction}
     This is an assignment about guessing games and appropriate strategies. This
@@ -51,11 +56,11 @@
     searching algorithm where you're searching for the item, rather than
     searching for the index of a known item.
 
-    Both binary searches and linear
-    searches can be adapted to that end, as both work by comparisons of the
-    target and ``guesses''. These are analogous to asking the user questions - in
-    the case of linear search, the question ``is your number equal to \ldots?'',
-    and in the case of binary search, ``is your number greater than \ldots?''
+    Both binary searches and linear searches can be adapted to that end, as
+    both work by comparisons of the target and ``guesses''. These are analogous
+    to asking the user questions - in the case of linear search, the question
+    ``is your number equal to \ldots?'', and in the case of binary search, ``is
+    your number greater than \ldots?''
 
     Therefore, essentially we need only to implement binary and linear search
     where the ``comparison function'' delegates to the user.  However,
@@ -64,6 +69,17 @@
     knowledge of the \textit{value} of the target, so it can be interpolated on
     the current upper and lower bounds. This means we will only achieve the
     $O(\log(n))$ complexity of binary search.
+
+    Sadly, we also won't be able to implement any such search algorithm for the
+    set of reals $\mathbb{R}$, or any set with equivalent or higher cardinality
+    (eg $\mathbb{C} = \mathbb{R}^2 \Rightarrow \abs{\mathbb{C}} =
+    \abs{\mathbb{R}}$). This is because they are not a countably infinite set -
+    there exists no bijection between them and the natural numbers. If we
+    assume we could write a search algorithm to guess a real number, each of
+    the algorithm's guesses could be labeled with a natural number, implying
+    there does exist some enumeration of the reals. This contradicts lots of
+    established knowledge (eg Cantor's diagonal argument)
+    and so we know this won't be possible.
 
     Code for this assignment has been written in Pascal, targeted at and tested
     in fpc (version 3.0.0+dfsg-2), using mode \verb|{$MODE OBJFPC}|. This
@@ -75,6 +91,14 @@
 
     At some points, I use some algebraic notation. I use $\wedge$, which means
     logical and, to indicate that multiple statements are true.
+
+    My general model/definition for a ``search algorithm'' is an algorithm that
+    can ask only boolean questions of a user, and must use ideally as few of
+    these as possible to guess a target number that the user knows.
+
+    Generally, I have provided pseudocode for my algorithms. My pseudocode is
+    probably pretty close to structured english, but I feel like if I were to
+    make it much more code-like it would more or less be Pascal/Python.
 
     \section{Boilerplate}
     To create a program that performs such a search to guess a number, some
@@ -122,6 +146,11 @@ end;
     whole affair needs one semicolon).
 
     \subsection{read\_lohi}
+    NB this function is currently unused in the source, but it was used for
+    testing one of the earlier adaptations of the binary search algorithm. It
+    also provides some interesting talking points about call signatures in
+    Pascal.
+
     I wanted to provide some facility for setting the upper bound and lower
     bound of a binary search. As this function wants to kind of ``return'' two
     things, it has a nontrivial call signature, which is worth thinking about.
@@ -277,7 +306,7 @@ end;
     
     We can easily come up with such an enumeration by considering the set of
     rationals as a grid with two integer axes representing numerator and
-    denominator (in other words, the set $\mathbb{Z}^2$. We can then ``spiral
+    denominator (in other words, the set $\mathbb{Z}^2$). We can then ``spiral
     outwards'' from the origin. This will be easiest to do in squares aligned
     with the axes, through which we move in the anticlockwise direction,
     although it could also be done in the diagonal direction.  The first part
@@ -432,6 +461,253 @@ end;
     statement, so no begin \ldots end block is needed. The condition of the
     loop is that it keeps going if the number is one to be skipped, or the user
     does not indicate that the guess is correct.
+
+    Another thing this code makes use of is short-circuit boolean evaluation.
+    All of the ``filter'' checks have been compounded into one boolean
+    expression, using the or operator. Even though there is a call to oracle in
+    this statement, the call will only actually be evaluated if neither of the
+    filter checks flag up - if it doesn't pass the filter, it will
+    short-circuit so the call to oracle will be skipped.
+
+    A parting consideration is that the linear search is very ``secure'', in a
+    sense - a malicious user will not be able to confuse the linear search in
+    any way, they will only be able to jeopardise their own experience - any
+    sequence of answers for a linear search will seem sensible to it, even if
+    they are intended maliciously. Really, a user's only power is to lie about
+    what their number was, which a simple command line program won't
+    realistically be able to defend against.
+
+    \section{Binary search}
+    At last! The binary search algorithm is significantly faster than the
+    linear search, in the average case (being $O(\log(n))$).
+    
+    \subsection{Basic binary}
+    In its most basic form, the binary search might work something like this in
+    pseudocode:
+
+\begin{lstlisting}[caption=Basic binary search pseudocode]
+Establish a lower bound and a strict upper bound
+While the difference between the bounds is greater than one
+    Guess a number in the middle of these bounds
+    If the guess was too high, move the upper bound down to the guess
+    If the guess was too low, move the lower bound up to the guess
+\end{lstlisting}
+
+    Note that this algorithm will rely on some "magic" upper and lower bound,
+    for now. I've used some slightly careful consideration of range arithmetic
+    and definitions - by having a strict upper bound, when the length of the
+    range is one, the only remaining candidate in the range is the lower bound.
+    This is one easy way to prevent off-by-one errors and too much
+    case-checking here. It can be implemented in Pascal quite trivially, like
+    so:
+
+\begin{lstlisting}[language=Pascal, caption=Basic binary search in Pascal, label={lst:binarysearch}]
+function binary_search(lower, upper: integer): integer;
+var
+    mid: integer;
+    is_ge: boolean;
+begin
+    while upper - lower > 1 do begin
+        mid := (upper + lower) div 2;
+        is_ge := oracle('Is your number greater than or equal to ' + IntToStr(mid) + '? ');
+        if is_ge then
+            lower := mid
+        else
+            upper := mid;
+    end;
+    binary_search := lower;
+end;
+\end{lstlisting}
+
+    This function takes two parameters, the bounds, and returns the guessed
+    number. It is also relatively immune to malicious users - again, every
+    sequence of answers leads to a correct guess, assuming all the answers were
+    correct.
+
+    \subsection{Bound-finding binary search}
+
+    Our binary search could be made significantly less na\"ive by not putting a
+    bounds restriction on the user. We can actually determine a bound quite
+    quickly, assuming nothing other than that the the user's number will be an
+    integer.
+    
+    Continuing the theme of binary and powers of two, we can simply check the
+    ``bound'' between each of the adjacent powers of 2, ie first 1-2, then 2-4,
+    then 4-8 (note that these are the good old fashioned strict upper bound
+    ranges, so there is no overlap). This will converge to some number $n$ in
+    logarithmic time, again. However, this does not account for negative
+    numbers - what we can easily do is simply consider the \textit{absolute}
+    value of the user's number $\abs{n}$. We need then only ask if it is
+    negative once, at the end. If it is negative, we will need to ``flip'' the
+    range, bearing in mind to increase the new lower bound and decrease the new
+    upper bound, to make them non-strict and strict, respectively. This leaves
+    the single edge case where the user's number is 0, as this is not an
+    integer power of 2. We can explicitly check for this to get around it (not
+    very elegant, but simple enough).
+
+    In pseudocode, this might be implemented as follows:
+
+\begin{lstlisting}[caption=Bound-finding pseudocode]
+If the user's number is 0, return the range 0-1
+For each pair a and b of powers of 2
+    If a <= |n| < b
+        Remember this range, and stop guessing ranges
+If the user's number is positive, return this range
+Otherwise, return the ``flipped'' range
+\end{lstlisting}
+
+    This then comes to the following implementation in Pascal:
+
+\begin{lstlisting}[language=Pascal, caption=Bound-finding subroutine in Pascal]
+procedure binary_find_bounds(out o_lower: integer;
+                             out o_upper: integer);
+var
+    lower: integer = 1;
+    upper: integer = 2;
+begin
+    writeln('This is the stage where I determine some bounds on your number. I'
+           , ' will be asking questions about the *magnitude* of your number,'
+           , ' so watch out.');
+    if oracle('Is your number 0? ') then begin
+        o_lower := 0;
+        o_upper := 1;
+    end else begin
+        while not oracle('Is your number some x such that ' +
+          IntToStr(lower) + ' <= |x| < ' + IntToStr(upper) + '? ') do begin
+            lower := lower * 2;
+            upper := upper * 2;
+        end;
+        if oracle('Is your number greater than or equal to 0? ') then begin
+            o_lower := lower;
+            o_upper := upper;
+        end else begin
+            o_lower := - upper + 1;
+            o_upper := - lower - 1;
+        end;
+    end;
+end;
+\end{lstlisting}
+
+    Using this, we can successfully perform a binary search on the set of all
+    integers $\mathbb{Z}$. In fact, we only need to first call this subroutine
+    to determine the bounds, and then let the previous function from listing
+    \ref{lst:binarysearch} do the rest.
+
+    \subsection{Rational numbers}
+
+    Interestingly, theoretically we already have enough ``material'' to put
+    together a binary search on the set of all rationals. We can use the
+    previously defined enumeration, and then simply ask the user to think of
+    what the index of their number is in that enumeration, and then perform a
+    binary search as normal to find that integer. Here, the concept of
+    ``greater than'' has been entirely abstracted away from the comparison of
+    actual rationals.
+    
+    However, this makes some rather theoretical demands of the user, and is
+    better left as a perverse though experiment. There are far better ways to
+    approach this. Namely, there exists a binary search tree of the set of
+    rationals - the ``Stern-Brocot'' tree, which uses fractional mediants:
+
+    \begin{figure}[h]
+        \includegraphics[width=0.5\textwidth]{sternbrocot}
+        \centering
+        \caption{A Stern-Brocot tree}
+	\end{figure}
+
+    This also addresses the concern about comparison - this tree does preserve
+    a proper ordering of the rationals, due to the fact that the mediant of two
+    fractions lies strictly in between those fractions.
+
+    Interestingly, this tree has kind of similar behaviour to what we
+    encountered in the bound-finding function - it only terminates on positive
+    nonzero numbers. We can get around this in the same way - first check for
+    0, ask questions about the absolute value of the user's number and then ask
+    if it is negative:
+
+\begin{lstlisting}[caption=Binary search on $\mathbb{Q}$ in pseudocode]
+Ask if the user's number is 0
+Set the lower and upper bound to 0/1 and 1/0
+While you haven't guessed the user's number
+    Generate the mediant of the bounds
+    If this is the number, stop
+    If this is too high, move the upper bound down to the mediant
+    Otherwise, move the lower bound up to the mediant
+\end{lstlisting}
+
+    This can be implemented like so in Pascal:
+
+\begin{lstlisting}[language=Pascal, caption=Binary search on $\mathbb{Q}$ in Pascal]
+procedure binary_search(out o_x: integer;
+                        out o_y: integer);
+var
+    mid_x, mid_y: integer;
+    lo_x: integer = 0;
+    lo_y: integer = 1;
+    hi_x: integer = 1;
+    hi_y: integer = 0;
+    is_ge: boolean;
+begin
+    if oracle('Is your number equal to 0? ') then begin
+        o_x := 0;
+        o_y := 1;
+    end else begin
+        repeat
+            mid_x := lo_x + hi_x;
+            mid_y := lo_y + hi_y;
+            is_ge := oracle('is your number q such that '
+                          + IntToStr(mid_x) + '/' + IntToStr(mid_y)
+                          + ' <= |q|? ');
+            if is_ge then begin
+                lo_x := mid_x;
+                lo_y := mid_y;
+            end else begin
+                hi_x := mid_x;
+                hi_y := mid_y;
+            end;
+        until is_ge and oracle('is your number q such that |q| = '
+                          + IntToStr(mid_x) + '/' + IntToStr(mid_y) + '? ');
+        o_x := mid_x;
+        o_y := mid_y;
+        if oracle('Is your number less than 0? ') then
+            o_x := -mid_x;
+    end;
+end;
+\end{lstlisting}
+
+    \section{Interface}
+    Having implemented all of the algorithms, it was now time to write an
+    interface. First, I wrote a number of procedures to go with each algorithm,
+    prefixed with ``perform\_''. They mainly just printed some information and
+    formatted the results to the user. For example, to go with the binary
+    search on $\mathbb{Z}$:
+
+\begin{lstlisting}[language=Pascal, caption=Binary search on $\mathbb{Z}$ wrapper procedure]
+procedure perform_bsearch;
+var
+    guess: integer;
+    lower, upper: integer;
+begin
+    writeln('welcome to the binary search game! Think of an integer.');
+    binary_find_bounds(lower, upper);
+    guess := binary_search(lower, upper);
+    writeln('your number was ', guess);
+end;
+\end{lstlisting}
+
+    Using such procedures, I then wrote the following short program:
+
+\begin{lstlisting}[language=Pascal, caption=Main interface loop]
+while true do begin
+    if oracle('Would you like to perform an integer binary search? ') then
+        perform_bsearch
+    else if oracle('Would you like to perform a rational binary search? ') then
+        perform_fracbsearch
+    else if oracle('Would you like to perform an integer linear search? ') then
+        perform_lsearch
+    else if oracle('Would you like to perform a rational linear search? ') then
+        perform_fraclsearch;
+end;
+\end{lstlisting} 
 
     \section{Source}
     The full project in its directory structure, including this document, can
