@@ -26,7 +26,7 @@ procedure perform_lsearch;
 var
     guess: integer;
 begin
-    writeln('Think of a number x >= 0');
+    writeln('Think of an integer');
     guess := linear_search;
     writeln('Your number was ', guess);
 end;

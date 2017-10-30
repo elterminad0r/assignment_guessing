@@ -1,6 +1,9 @@
 \documentclass{article}
 \title{``Guessing game'' assignment}
 \author{Izaak van Dongen}
+
+\usepackage{savetrees}
+
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{commath}
@@ -56,11 +59,11 @@
 
     Therefore, essentially we need only to implement binary and linear search
     where the ``comparison function'' delegates to the user.  However,
-    interpolation search, which has the complexity $O(\log\log n)$ (on uniform
+    interpolation search, which has the complexity $O(\log(\log(n)))$ (on uniform
     data sets, which we can assume a user-generated target is), requires
     knowledge of the \textit{value} of the target, so it can be interpolated on
     the current upper and lower bounds. This means we will only achieve the
-    $O(\log n)$ complexity of binary search.
+    $O(\log(n))$ complexity of binary search.
 
     Code for this assignment has been written in Pascal, targeted at and tested
     in fpc (version 3.0.0+dfsg-2), using mode \verb|{$MODE OBJFPC}|. This
@@ -207,7 +210,7 @@ var
     i: integer = 0;
 begin
     while not oracle('Is your number equal to ' + IntToStr(i) + '? ') do
-		i := i + 1;
+        i := i + 1;
     linear_search := i;
 end;
 \end{lstlisting}
@@ -229,14 +232,14 @@ end;
 
     However, it's much better represented inductively with a condition:
 
-	\begin{align*}
+    \begin{align*}
         U_1 &= 0\\
-		U_{n + 1} &= 
-		\begin{cases}
-			-U_n + 1        & \text{if } x \leq 0\\
-			-U_n            & \text{if } x > 0
-		\end{cases}\\
-	\end{align*}
+        U_{n + 1} &= 
+        \begin{cases}
+            -U_n + 1        & \text{if } x \leq 0\\
+            -U_n            & \text{if } x > 0
+        \end{cases}\\
+    \end{align*}
 
     This can also quite easily be implemented in code:
 
@@ -280,15 +283,13 @@ end;
     although it could also be done in the diagonal direction.  The first part
     of the grid, in terms of co-ordinate pairs, will be like this:
 
-    \begin{equation}
-    \begin{matrix}
-    (-2, 2) & (-1, 2) & (0, 2) & (1, 2) & (2, 2)\\
-    (-2, 1) & (-1, 1) & (0, 1) & (1, 1) & (2, 1)\\
-    (-2, 0) & (-1, 0) & (0, 0) & (1, 0) & (2, 0)\\
-    (-2, -1) & (-1, -1) & (0, -1) & (1, -1) & (2, -1)\\
-    (-2, -2) & (-1, -2) & (0, -2) & (1, -2) & (2, -2)\\
-    \end{matrix}
-    \end{equation}
+    \begin{alignat*}{20}
+    &(-&&2, &&2&&) &&(-&&1, &&2&&) &&(&&0, &&2&&) &&(&&1, &&2&&) &&(&&2, &&2&&)\\
+    &(-&&2, &&1&&) &&(-&&1, &&1&&) &&(&&0, &&1&&) &&(&&1, &&1&&) &&(&&2, &&1&&)\\
+    &(-&&2, &&0&&) &&(-&&1, &&0&&) &&(&&0, &&0&&) &&(&&1, &&0&&) &&(&&2, &&0&&)\\
+    &(-&&2, -&&1&&) &&(-&&1, -&&1&&) &&(&&0, -&&1&&) &&(&&1, -&&1&&) &&(&&2, -&&1&&)\\
+    &(-&&2, -&&2&&) &&(-&&1, -&&2&&) &&(&&0, -&&2&&) &&(&&1, -&&2&&) &&(&&2, -&&2&&)\\
+    \end{alignat*}
 
     Where the first couple of terms of the enumeration are:
 
@@ -302,7 +303,7 @@ end;
     \end{equation}
 
     Note that the first term is $\frac{0}{0}$. This technically is not a
-    rational numbers as its value is undefined, but we can deal with that later
+    rational number as its value is undefined, but we can deal with that later
     - first we can establish the enumeration, and then ``filter'' it for
     unwanted pairings. Note also that this enumeration will not preserve any
     conception of size of fractions - $\frac{1}{2}$ will occur long before
@@ -322,7 +323,7 @@ end;
 
     is the ith element of our enumeration.
 
-    We know the first term is $frac{0}{0}$. Hence, we have $X_1 = 0 \wedge Y_1
+    We know the first term is $\frac{0}{0}$. Hence, we have $X_1 = 0 \wedge Y_1
     = 0$
 
     We also say that we jump to the next layer of square when we ``hit'' the
@@ -347,26 +348,93 @@ end;
 
     We can produce similar definitions for the other three sides:
 
-    \begin{align*}
-      Y_i > 0 \wedge
-      -Y_i < X_i \leq Y_i
-    & \Rightarrow
-      X_{i + 1} = X_i - 1 \wedge
-      Y_{i + 1} = Y_i\\
-      X_i < 0 \wedge
-      X_i \leq Y_i < -X_i
-    & \Rightarrow
-      X_{i + 1} = X_i \wedge
-      Y_{i + 1} = Y_i - 1\\
-      Y_i < 0 \wedge
-      Y_i \leq X_i < -Y_i
-    & \Rightarrow
-      X_{i + 1} = X_i + 1 \wedge
-      Y_{i + 1} = Y_i\\
-    \end{align*}
+    \begin{alignat*}{7}
+    &Y_i &&> 0 &&\wedge -Y_i &&< X_i &&\leq Y_i &&\Rightarrow X_{i + 1} = X_i - 1 &&\wedge Y_{i + 1} = Y_i\\
+    &X_i &&< 0 &&\wedge X_i &&< Y_i &&\leq -X_i &&\Rightarrow X_{i + 1} = X_i &&\wedge Y_{i + 1} = Y_i - 1\\
+    &Y_i &&< 0 &&\wedge Y_i &&\leq X_i &&< -Y_i &&\Rightarrow X_{i + 1} = X_i + 1 &&\wedge Y_{i + 1} = Y_i\\
+    \end{alignat*}
+
+    Now that we have a way to produce such an enumeration, we can consider a
+    filtering. The first condition is that we skip any number with a
+    denominator of 0, as this is undefined. The second condition is that we
+    should only consider fractions in their simplest form - ie the numerator
+    and denominator are coprime. This means we don't duplicate any rationals
+    and so obtain a strict bijection between the naturals and the rationals.
+    Knowing that
+    \begin{equation}
+        \text{A and B are coprime} \Leftrightarrow gcd(A, B) = 1
+    \end{equation}
+
+    We can simply calculate the gcd of $X$ and $Y$ using Euclid's algorithm,
+    implemented like so in Pascal:
+
+\begin{lstlisting}[language=Pascal, caption=Euclid's algorithm in Pascal]
+function gcd(a, b: integer): integer;
+var
+  temp: integer;
+begin
+  while b <> 0 do begin
+    temp := b;
+    b := a mod b;
+    a := temp;
+  end;
+  gcd := a;
+end; 
+\end{lstlisting}
+
+    This also works how we want for negative numbers - printing a couple of
+    examples:
+
+\begin{lstlisting}[caption=GCD behaviour for negative numbers]
+gcd 1 2 is 1
+gcd 1 -2 is 1
+gcd -1 2 is -1
+gcd -1 -2 is -1
+\end{lstlisting}
+
+    We can see that only one of the pairs $1, -2$ and $-1, 2$ are considered
+    coprime, which is correct as $\frac{1}{-2} = \frac{-1}{2} = -\frac{1}{2}$.
+    We can also see that -1 and -2 are not considered coprime, which is again
+    correct as it is equivalent to $\frac{1}{2}$.
+
+    We can now put all of this together to obtain a fully featured linear
+    search algorithm on the set of rational numbers:
+
+\begin{lstlisting}[language=Pascal, caption=Linear search on $\mathbb{Q}$ implementation in Pascal]
+procedure linear_search(out o_x: integer;
+                        out o_y: integer);
+var
+    x: integer = 0;
+    y: integer = 0;
+begin
+    while (y = 0) or (gcd(x, y) <> 1) or
+      (not oracle('Is your number equal to ' + IntToStr(x) + '/' + IntToStr(y) + '? ')) do
+        if (x >= 0) and (y = 0) then begin
+            x := x + 1;
+            y := y + 1;
+        end else if (x > 0) and (-x <= y) and (y < x) then
+            y := y + 1
+        else if (y > 0) and (-y < x) and (x <= y) then
+            x := x - 1
+        else if (x < 0) and (x < y) and (y <= -x) then
+            y := y - 1
+        else
+            x := x + 1;
+    o_x := x;
+    o_y := y;
+end;
+\end{lstlisting}
+    
+    This again uses the \verb|out| parameter trick to return multiple values.
+    It is also a little terser than the fully qualified mathematical conditions
+    given earlier, as some conditions are mutually exclusive/eliminated.
+    Interestingly, the body of the while loop is technically a single
+    statement, so no begin \ldots end block is needed. The condition of the
+    loop is that it keeps going if the number is one to be skipped, or the user
+    does not indicate that the guess is correct.
 
     \section{Source}
     The full project in its directory structure, including this document, can
-    be found at \verb|https://github.com/elterminad0r/assignment_guessing|.
+    be found at\\ \verb|https://github.com/elterminad0r/assignment_guessing|.
 
 \end{document}
