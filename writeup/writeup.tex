@@ -60,7 +60,11 @@
     both work by comparisons of the target and ``guesses''. These are analogous
     to asking the user questions - in the case of linear search, the question
     ``is your number equal to \ldots?'', and in the case of binary search, ``is
-    your number greater than \ldots?''
+    your number greater than \ldots?'' Generalising from this idea of
+    ``questions'', my general model/definition for a ``search algorithm'' is an
+    algorithm that can ask only boolean questions of a user, and must use
+    ideally as few of these as possible to guess a target number that the user
+    knows.
 
     Therefore, essentially we need only to implement binary and linear search
     where the ``comparison function'' delegates to the user.  However,
@@ -92,10 +96,6 @@
     At some points, I use some algebraic notation. I use $\wedge$, which means
     logical and, to indicate that multiple statements are true.
 
-    My general model/definition for a ``search algorithm'' is an algorithm that
-    can ask only boolean questions of a user, and must use ideally as few of
-    these as possible to guess a target number that the user knows.
-
     Generally, I have provided pseudocode for my algorithms. My pseudocode is
     probably pretty close to structured english, but I feel like if I were to
     make it much more code-like it would more or less be Pascal/Python.
@@ -111,12 +111,13 @@
     will still work.
 
     \subsection{oracle}
-    This is a function that can retrieve a boolean value from the user. It's
-    named ``oracle'' as it acts as the comparison oracle the search functions
-    must appeal to. The only parameter it takes is a message to display. The
-    unix-inspired ruling it uses is that if an input starts with a ``y'', it is
-    considered affirmative, and negative otherwise. The broad approach it uses
-    is like this:
+    This is a function that can retrieve a boolean value from the user. This
+    abstracts the ``boolean question'' part of the search algorithm away from
+    the actual algorithmic logic.. It's named ``oracle'' as it acts as the
+    comparison oracle the search functions must appeal to. The only parameter
+    it takes is a message to display. The unix-inspired ruling it uses is that
+    if an input starts with a ``y'', it is considered affirmative, and negative
+    otherwise. The broad approach it uses is like this:
 
 \begin{lstlisting}[caption=oracle pseudocode]
 If the user's response is empty, the result is negative
@@ -312,13 +313,15 @@ end;
     although it could also be done in the diagonal direction.  The first part
     of the grid, in terms of co-ordinate pairs, will be like this:
 
-    \begin{alignat*}{20}
-    &(-&&2, &&2&&) &&(-&&1, &&2&&) &&(&&0, &&2&&) &&(&&1, &&2&&) &&(&&2, &&2&&)\\
-    &(-&&2, &&1&&) &&(-&&1, &&1&&) &&(&&0, &&1&&) &&(&&1, &&1&&) &&(&&2, &&1&&)\\
-    &(-&&2, &&0&&) &&(-&&1, &&0&&) &&(&&0, &&0&&) &&(&&1, &&0&&) &&(&&2, &&0&&)\\
-    &(-&&2, -&&1&&) &&(-&&1, -&&1&&) &&(&&0, -&&1&&) &&(&&1, -&&1&&) &&(&&2, -&&1&&)\\
-    &(-&&2, -&&2&&) &&(-&&1, -&&2&&) &&(&&0, -&&2&&) &&(&&1, -&&2&&) &&(&&2, -&&2&&)\\
-    \end{alignat*}
+    \begin{center}
+    \begin{tabular}{ c c c c c }
+        (-2, 2) & (-1, 2) & (0, 2) & (1, 2) & (2, 2)\\
+        (-2, 1) & (-1, 1) & (0, 1) & (1, 1) & (2, 1)\\
+        (-2, 0) & (-1, 0) & (0, 0) & (1, 0) & (2, 0)\\
+        (-2, -1) & (-1, -1) & (0, -1) & (1, -1) & (2, -1)\\
+        (-2, -2) & (-1, -2) & (0, -2) & (1, -2) & (2, -2)\\
+    \end{tabular}
+    \end{center}
 
     Where the first couple of terms of the enumeration are:
 
@@ -674,6 +677,27 @@ begin
 end;
 \end{lstlisting}
 
+    As it is traversing an infinite tree, it will never reach a point where the
+    bounds are so close that it can stop. Therefore, as it only has boolean
+    questions it must sometimes ask if the user's number is exactly equal to a
+    guess, to produce a terminating condition.
+
+    Note that although it uses a binary search tree, it has diverged a little
+    from the classic idea of a binary search in the context of a guessing game,
+    as the way it ``splits'' choice is not by mean but by mediant.
+    Interestingly, if we tried this approach but using the mean of the upper
+    and lower bounds, it would never terminate for the vast majority of
+    fractions - this would be because it could only ``reach'' fractions with a
+    denominator which is a power of 2. Interestingly, this is also exactly the
+    set of rationals representable by a float (although a finite float can of
+    course only represent a subset of these).
+    
+    It's also not entirely user-friendly, in that if a user decides on a crazy
+    fraction like $\frac{51}{97}$, they have to do a lot of mental maths to
+    answer the questions. However, really there isn't any way around this if
+    you want to stay true to the binary search idea of eliminating many
+    possible guesses simultaneously.
+
     \section{Interface}
     Having implemented all of the algorithms, it was now time to write an
     interface. First, I wrote a number of procedures to go with each algorithm,
@@ -708,6 +732,10 @@ while true do begin
         perform_fraclsearch;
 end;
 \end{lstlisting} 
+
+    Note that there is no explicit way to exit - this is because I favour the
+    tried and tested command line idiom of the keyboard interrupt. When the
+    user wishes to exit, they can simply hit Ctrl-c and get on with their day.
 
     \section{Source}
     The full project in its directory structure, including this document, can
