@@ -15,6 +15,7 @@ var
     mid: integer;
     is_ge: boolean;
 begin
+    // the upper bound is a strict bound
     while upper - lower > 1 do begin
         mid := (upper + lower) div 2;
         is_ge := oracle('Is your number greater than or equal to ' + IntToStr(mid) + '? ');

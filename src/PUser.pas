@@ -15,6 +15,7 @@ uses SysUtils;
 type
     OracleFunction = function(query: integer): boolean;
 
+// 'oracle' function to ask a boolean question of a user
 function oracle(msg: string): boolean;
 var
     usr_input: string;

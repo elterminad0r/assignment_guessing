@@ -10,6 +10,7 @@ implementation
 
 uses PUser, SysUtils;
 
+// Binary search on a rational using a Stern-Brocot tree.
 procedure binary_search(out o_x: integer;
                         out o_y: integer);
 var

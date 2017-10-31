@@ -10,6 +10,7 @@ implementation
 
 uses PUser, SysUtils;
 
+// Linear search on the set of all integers
 function linear_search: integer;
 var
     i: integer = 0;

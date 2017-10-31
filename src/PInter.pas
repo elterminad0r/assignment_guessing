@@ -4,6 +4,7 @@ program PInter;
 
 uses PBinary, PLinear, PUser, PFracLinear, PFracBinary;
 
+// 'user interface' to the implemented algorithms and procedures
 begin
     while true do begin
         if oracle('Would you like to perform an integer binary search? ') then

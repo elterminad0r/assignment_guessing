@@ -718,7 +718,9 @@ begin
 end;
 \end{lstlisting}
 
-    Using such procedures, I then wrote the following short program:
+    These procedures are all stored in Pascal \textit{units}, which provide an
+    interface to the ``perform'' procedures. Using such procedures, I then
+    wrote the following short program:
 
 \begin{lstlisting}[language=Pascal, caption=Main interface loop]
 while true do begin
@@ -737,8 +739,70 @@ end;
     tried and tested command line idiom of the keyboard interrupt. When the
     user wishes to exit, they can simply hit Ctrl-c and get on with their day.
 
+    \section{``Testing''}
+
+    Here is an example of a session you might enter with the program:
+
+\begin{lstlisting}[caption=Typical session]
+To answer affirmatively, you should write anything starting with a "y". Anything else will be considered negative. Lower and upper bounds can be provided in argv
+Would you like to perform an integer binary search? y
+welcome to the binary search game! Think of an integer.
+This is the stage where I determine some bounds on your number. I will be asking questions about the *magnitude* of your number, so watch out.
+Is your number 0? n
+Is your number some x such that 1 <= |x| < 2? n
+Is your number some x such that 2 <= |x| < 4? n
+Is your number some x such that 4 <= |x| < 8? n
+Is your number some x such that 8 <= |x| < 16? y
+Is your number greater than or equal to 0? y
+Is your number greater than or equal to 12? n
+Is your number greater than or equal to 10? y
+Is your number greater than or equal to 11? n
+your number was 10
+Would you like to perform an integer binary search? n
+Would you like to perform a rational binary search? y
+Welcome to the binary search game! Think of a rational number.
+Is your number equal to 0? n
+is your number q such that 1/1 <= |q|? y
+is your number q such that |q| = 1/1? n
+is your number q such that 2/1 <= |q|? n
+is your number q such that 3/2 <= |q|? n
+is your number q such that 4/3 <= |q|? y
+is your number q such that |q| = 4/3? n
+is your number q such that 7/5 <= |q|? y
+is your number q such that |q| = 7/5? y
+Is your number less than 0? y
+your number was -7/5
+Would you like to perform an integer binary search? n
+Would you like to perform a rational binary search? n
+Would you like to perform an integer linear search? y
+Think of an integer
+Is your number equal to 0? 
+Is your number equal to 1? 
+Is your number equal to -1? 
+Is your number equal to 2? 
+Is your number equal to -2? 
+Is your number equal to 3? 
+Is your number equal to -3? y
+Your number was -3
+Would you like to perform an integer binary search? 
+Would you like to perform a rational binary search? 
+Would you like to perform an integer linear search? 
+Would you like to perform a rational linear search? y
+Think of a rational number
+Is your number equal to 1/1? 
+Is your number equal to 0/1? 
+Is your number equal to -1/1? 
+Is your number equal to 2/1? 
+Is your number equal to 1/2? 
+Is your number equal to -2/1? 
+Is your number equal to 1/-2? y
+Your number was 1/-2
+Would you like to perform an integer binary search? ^C
+\end{lstlisting}
+
     \section{Source}
-    The full project in its directory structure, including this document, can
-    be found at\\ \verb|https://github.com/elterminad0r/assignment_guessing|.
+    The full project in its directory structure, including this document (as a
+    full-colour PDF and \TeX{} file), can be found at\\
+    \verb|https://github.com/elterminad0r/assignment_guessing|.
 
 \end{document}
