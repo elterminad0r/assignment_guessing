@@ -1,6 +1,6 @@
 {$MODE OBJFPC}
 
-unit PFracBinary;
+unit UFracBinary;
 
 interface
 
@@ -8,7 +8,7 @@ procedure perform_fracbsearch;
 
 implementation
 
-uses PUser, SysUtils;
+uses UUser, SysUtils;
 
 // Binary search on a rational using a Stern-Brocot tree.
 procedure binary_search(out o_x: integer;

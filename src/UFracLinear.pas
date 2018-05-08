@@ -1,6 +1,6 @@
 {$MODE OBJFPC}
 
-unit PFracLinear;
+unit UFracLinear;
 
 interface
 
@@ -8,7 +8,7 @@ procedure perform_fraclsearch;
 
 implementation
 
-uses PUser, SysUtils;
+uses UUser, SysUtils;
 
 function gcd(a, b: integer): integer;
 var

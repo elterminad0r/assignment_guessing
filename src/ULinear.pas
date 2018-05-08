@@ -1,6 +1,6 @@
 {$MODE OBJFPC}
 
-unit PLinear;
+unit ULinear;
 
 interface
 
@@ -8,7 +8,7 @@ procedure perform_lsearch;
 
 implementation
 
-uses PUser, SysUtils;
+uses UUser, SysUtils;
 
 // Linear search on the set of all integers
 function linear_search: integer;

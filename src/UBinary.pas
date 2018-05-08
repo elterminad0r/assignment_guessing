@@ -1,6 +1,6 @@
 {$MODE OBJFPC}
 
-unit PBinary;
+unit UBinary;
 
 interface
 
@@ -8,7 +8,7 @@ procedure perform_bsearch;
 
 implementation
 
-uses PUser, SysUtils;
+uses UUser, SysUtils;
 
 function binary_search(lower, upper: integer): integer;
 var

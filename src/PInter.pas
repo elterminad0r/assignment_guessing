@@ -2,7 +2,7 @@
 
 program PInter;
 
-uses PBinary, PLinear, PUser, PFracLinear, PFracBinary;
+uses UBinary, ULinear, UUser, UFracLinear, UFracBinary;
 
 // 'user interface' to the implemented algorithms and procedures
 begin

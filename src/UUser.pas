@@ -1,6 +1,6 @@
 {$MODE OBJFPC}
 
-unit PUser;
+unit UUser;
 
 interface
 
