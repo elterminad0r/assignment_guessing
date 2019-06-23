@@ -25,23 +25,23 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
+    backgroundcolor=\color{backcolour},
     commentstyle=\color{codegreen},
     keywordstyle=\color{magenta},
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
     basicstyle=\footnotesize,
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
     showstringspaces=false,
-    showtabs=false,                  
+    showtabs=false,
     tabsize=2
 }
- 
+
 \lstset{style=mystyle}
 
 \begin{document}
@@ -157,7 +157,7 @@ end;
     things, it has a nontrivial call signature, which is worth thinking about.
     One possible solution might be to define some kind of \verb|Bounds|
     container class that can hold both values.
-    
+
     However, Pascal provides a way to output multiple values, and this is
     through an \verb|out| parameter. It could also be done using a \verb|var|
     parameter, although there's a slight difference. Both of these work, and in
@@ -217,7 +217,7 @@ end;
     kind of ``brute force'' approach - sequentially making guesses until one is
     correct. The single advantage of this algorithm is that it has no upper
     bound, and can even feasibly be made to work without a lower bound.
-    
+
     \subsection{Positive integers}
     The most simple approach is to assume the number is some $x$ such that
     \begin{equation}
@@ -264,7 +264,7 @@ end;
 
     \begin{align*}
         U_1 &= 0\\
-        U_{n + 1} &= 
+        U_{n + 1} &=
         \begin{cases}
             -U_n + 1        & \text{if } U_n \leq 0\\
             -U_n            & \text{if } U_n > 0
@@ -304,7 +304,7 @@ end;
     hence there must exist some enumeration of the elements of $\mathbb{Q}$,
     which can be obtained by applying the bijection to all the naturals in
     order.
-    
+
     We can easily come up with such an enumeration by considering the set of
     rationals as a grid with two integer axes representing numerator and
     denominator (in other words, the set $\mathbb{Z}^2$). We can then ``spiral
@@ -411,7 +411,7 @@ begin
     a := temp;
   end;
   gcd := a;
-end; 
+end;
 \end{lstlisting}
 
     This also works how we want for negative numbers - printing a couple of
@@ -456,7 +456,7 @@ begin
     o_y := y;
 end;
 \end{lstlisting}
-    
+
     This again uses the \verb|out| parameter trick to return multiple values.
     It is also a little terser than the fully qualified mathematical conditions
     given earlier, as some conditions are mutually exclusive/eliminated.
@@ -483,7 +483,7 @@ end;
     \section{Binary search}
     At last! The binary search algorithm is significantly faster than the
     linear search, in the average case (being $O(\log(n))$).
-    
+
     \subsection{Basic binary}
     In its most basic form, the binary search might work something like this in
     pseudocode:
@@ -533,7 +533,7 @@ end;
     bounds restriction on the user. We can actually determine a bound quite
     quickly, assuming nothing other than that the the user's number will be an
     integer.
-    
+
     Continuing the theme of binary and powers of two, we can simply check the
     ``bound'' between each of the adjacent powers of 2, ie first 1-2, then 2-4,
     then 4-8 (note that these are the good old fashioned strict upper bound
@@ -605,7 +605,7 @@ end;
     binary search as normal to find that integer. Here, the concept of
     ``greater than'' has been entirely abstracted away from the comparison of
     actual rationals.
-    
+
     However, this makes some rather theoretical demands of the user, and is
     better left as a perverse though experiment. There are far better ways to
     approach this. Namely, there exists a binary search tree of the set of
@@ -691,7 +691,7 @@ end;
     denominator which is a power of 2. Interestingly, this is also exactly the
     set of rationals representable by a float (although a finite float can of
     course only represent a subset of these).
-    
+
     It's also not entirely user-friendly, in that if a user decides on a crazy
     fraction like $\frac{51}{97}$, they have to do a lot of mental maths to
     answer the questions. However, really there isn't any way around this if
@@ -733,7 +733,7 @@ while true do begin
     else if oracle('Would you like to perform a rational linear search? ') then
         perform_fraclsearch;
 end;
-\end{lstlisting} 
+\end{lstlisting}
 
     Note that there is no explicit way to exit - this is because I favour the
     tried and tested command line idiom of the keyboard interrupt. When the
@@ -776,25 +776,25 @@ Would you like to perform an integer binary search? n
 Would you like to perform a rational binary search? n
 Would you like to perform an integer linear search? y
 Think of an integer
-Is your number equal to 0? 
-Is your number equal to 1? 
-Is your number equal to -1? 
-Is your number equal to 2? 
-Is your number equal to -2? 
-Is your number equal to 3? 
+Is your number equal to 0?
+Is your number equal to 1?
+Is your number equal to -1?
+Is your number equal to 2?
+Is your number equal to -2?
+Is your number equal to 3?
 Is your number equal to -3? y
 Your number was -3
-Would you like to perform an integer binary search? 
-Would you like to perform a rational binary search? 
-Would you like to perform an integer linear search? 
+Would you like to perform an integer binary search?
+Would you like to perform a rational binary search?
+Would you like to perform an integer linear search?
 Would you like to perform a rational linear search? y
 Think of a rational number
-Is your number equal to 1/1? 
-Is your number equal to 0/1? 
-Is your number equal to -1/1? 
-Is your number equal to 2/1? 
-Is your number equal to 1/2? 
-Is your number equal to -2/1? 
+Is your number equal to 1/1?
+Is your number equal to 0/1?
+Is your number equal to -1/1?
+Is your number equal to 2/1?
+Is your number equal to 1/2?
+Is your number equal to -2/1?
 Is your number equal to 1/-2? y
 Your number was 1/-2
 Would you like to perform an integer binary search? ^C

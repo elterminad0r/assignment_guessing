@@ -50,7 +50,7 @@ begin
 end;
 
 initialization
-begin   
+begin
     writeln('To answer affirmatively, you should write anything starting with '
           , 'a "y". Anything else will be considered negative. Lower and upper'
           , ' bounds can be provided in argv');

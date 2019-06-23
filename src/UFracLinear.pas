@@ -20,7 +20,7 @@ begin
     a := temp;
   end;
   gcd := a
-end; 
+end;
 
 procedure linear_search(out o_x: integer;
                         out o_y: integer);
