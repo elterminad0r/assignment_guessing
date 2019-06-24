@@ -33,16 +33,16 @@
 
     Therefore, essentially we need only to implement binary and linear search
     where the ``comparison function'' delegates to the user.  However,
-    interpolation search, which has the complexity $O(\log(\log(n)))$ (on
+    interpolation search, which has the complexity \(O(\log(\log(n)))\) (on
     uniform data sets, which we can assume a user-generated target is), requires
     knowledge of the \emph{value} of the target, so it can be interpolated on
     the current upper and lower bounds. This means we will only achieve the
-    $O(\log(n))$ complexity of binary search.
+    \(O(\log(n))\) complexity of binary search.
 
     Sadly, we also won't be able to implement any such search algorithm for the
-    set of reals $\mathbb{R}$, or any set with equivalent or higher cardinality
-    (eg $\mathbb{C} = \mathbb{R}^2 \implies \abs{\mathbb{C}} =
-    \abs{\mathbb{R}}$). This is because they are not a countably infinite set -
+    set of reals \(\mathbb{R}\), or any set with equivalent or higher cardinality
+    (eg \(\mathbb{C} = \mathbb{R}^2 \implies \abs{\mathbb{C}} =
+    \abs{\mathbb{R}}\)). This is because they are not a countably infinite set -
     there exists no bijection between them and the natural numbers. If we assume
     we could write a search algorithm to guess a real number, each of the
     algorithm's guesses could be labeled with a natural number, implying there
@@ -58,7 +58,7 @@
     really is relatively simple, and the functions are sufficiently described by
     their names and the simplicity of the operations (``self-documented'').
 
-    At some points, I use some algebraic notation. I use $\land$, which means
+    At some points, I use some algebraic notation. I use \(\land\), which means
     logical and, to indicate that multiple statements are true.
 
     Generally, I have provided pseudocode for my algorithms. My pseudocode is
@@ -188,14 +188,14 @@ end;
     bound, and can even feasibly be made to work without a lower bound.
 
     \subsection{Positive integers}
-    The most simple approach is to assume the number is some $x$ such that
+    The most simple approach is to assume the number is some \(x\) such that
     \begin{equation}
         x \in \{0\} \cup \mathbb{N}
     \end{equation}
     ie the set of natural numbers including 0. Guesses can then be made
     sequentially like so:
 
-\begin{lstlisting}[caption=Linear search on $\mathbb{N}$ pseudocode]
+\begin{lstlisting}[caption=Linear search on \(\mathbb{N}\) pseudocode]
 Set the current ``guess'' to 0
 While the guess is wrong
     Increment the guess by one
@@ -203,7 +203,7 @@ While the guess is wrong
 
     In Pascal, this could be implemented like so:
 
-\begin{lstlisting}[language=Pascal, caption=Linear search on $\mathbb{N}$ implementation]
+\begin{lstlisting}[language=Pascal, caption=Linear search on \(\mathbb{N}\) implementation]
 function linear_search: integer;
 var
     i: integer = 0;
@@ -218,12 +218,12 @@ end;
 
     The flaw in the previous program is that if the user sneakily decides to
     think of a negative number, this program won't ever terminate. This can be
-    solved by using some enumeration of the set of all integers $\mathbb{Z}$.
+    solved by using some enumeration of the set of all integers \(\mathbb{Z}\).
     The simplest of these is the sequence 0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5,
     6, -6 \ldots This sequence doesn't duplicate 0, and has the property of
     ``spreading out'' from 0. A sequence kind of like this with a lot of
     overhead could be represented by simply generating the set of natural
-    numbers $\mathbb{N}$ and then taking each of these and its negation.
+    numbers \(\mathbb{N}\) and then taking each of these and its negation.
     However, if we consider it as more of a mathematical sequence, it
     \emph{can} be represented by a closed formula
     \begin{equation}
@@ -241,7 +241,7 @@ end;
     This can also quite easily be implemented in code:
 
 \begin{lstlisting}[language=Pascal,
-                   caption=Linear search on $\mathbb{Z}$ implementation]
+                   caption=Linear search on \(\mathbb{Z}\) implementation]
 function linear_search: integer;
 var
     i: integer = 0;
@@ -261,19 +261,19 @@ end;
     \subsection{Rational numbers}
 
     Interestingly, a linear search can also be generalised to work on the set of
-    rational numbers $\mathbb{Q}$. This is closely related to the fact that the
+    rational numbers \(\mathbb{Q}\). This is closely related to the fact that the
     cardinality of the set of rationals
     \begin{equation}
         \abs{\mathbb{Q}} = \abs{\mathbb{N}}
     \end{equation}
-    This means there exists a bijection from $\mathbb{N}$ to $\mathbb{Q}$, and
-    hence there must exist some enumeration of the elements of $\mathbb{Q}$,
+    This means there exists a bijection from \(\mathbb{N}\) to \(\mathbb{Q}\), and
+    hence there must exist some enumeration of the elements of \(\mathbb{Q}\),
     which can be obtained by applying the bijection to all the naturals in
     order.
 
     We can easily come up with such an enumeration by considering the set of
     rationals as a grid with two integer axes representing numerator and
-    denominator (in other words, the set $\mathbb{Z}^2$). We can then ``spiral
+    denominator (in other words, the set \(\mathbb{Z}^2\)). We can then ``spiral
     outwards'' from the origin. This will be easiest to do in squares aligned
     with the axes, through which we move in the anticlockwise direction,
     although it could also be done in the diagonal direction.  The first part of
@@ -296,12 +296,12 @@ end;
         &(3, 1), (3, 2), \ldots
         \end{split}
     \end{equation}
-    Note that the first term is $\frac{0}{0}$. This technically is not a
+    Note that the first term is \(\frac{0}{0}\). This technically is not a
     rational number as its value is undefined, but we can deal with that later
     - first we can establish the enumeration, and then ``filter'' it for
     unwanted pairings. Note also that this enumeration will not preserve any
-    conception of size of fractions - $\frac{1}{2}$ will occur long before
-    $\frac{1}{100}$.
+    conception of size of fractions - \(\frac{1}{2}\) will occur long before
+    \(\frac{1}{100}\).
 
     We know that this path will reach all of the points on this grid, hence this
     enumeration will eventually reach the target - and this is where a linear
@@ -309,21 +309,22 @@ end;
     enumeration. We can consider the desired behaviour on each side of a square,
     and the conditions describing each such side.
 
-    Let us consider two sequences $X$ and $Y$, where we say that
+    Let us consider two sequences \(X\) and \(Y\), where we say that
     \(X_i / Y_i\) is the \(i\)th element of our enumeration.
 
-    We know the first term is $\frac{0}{0}$. Hence, we have $X_1 = 0 \land Y_1
-    = 0$
+    We know the first term is \(\frac{0}{0}\). Hence, we have \(X_1 = 0 \land Y_1
+    = 0\)
 
     We also say that we jump to the next layer of square when we ``hit'' the
     positive x-axis. To start the next square, we move to the right one and up
     one, as if we just move to the right, we stay on the axis and move right
     again. This means
-    $X_i \geq 0 \land Y_i = 0 \implies X_{i + 1} = X_i + 1 \land Y_{i + 1} = 1$
+    \(X_i \geq 0 \land Y_i = 0 \implies X_{i + 1} = X_i + 1 \land Y_{i + 1} =
+    1\)
 
-    If we are on the right side of the square, we know that $X_i$ is positive.
-    We also know that $-X_i \leq Y_i < X_i$. When this is true, we want to move
-    ``up'', so increment $Y$. We also know that $Y_i = 0$ is considered a
+    If we are on the right side of the square, we know that \(X_i\) is positive.
+    We also know that \(-X_i \leq Y_i < X_i\). When this is true, we want to move
+    ``up'', so increment \(Y\). We also know that \(Y_i = 0\) is considered a
     special case. Hence, we say that
     \begin{equation}
       X_i > 0 \land
@@ -349,7 +350,7 @@ end;
     \begin{equation}
         \text{A and B are coprime} \Leftrightarrow gcd(A, B) = 1
     \end{equation}
-    We can simply calculate the gcd of $X$ and $Y$ using Euclid's algorithm,
+    We can simply calculate the gcd of \(X\) and \(Y\) using Euclid's algorithm,
     implemented like so in Pascal:
 
 \begin{lstlisting}[language=Pascal, caption=Euclid's algorithm in Pascal]
@@ -376,15 +377,15 @@ gcd -1 2 is -1
 gcd -1 -2 is -1
 \end{lstlisting}
 
-    We can see that only one of the pairs $1, -2$ and $-1, 2$ are considered
-    coprime, which is correct as $\frac{1}{-2} = \frac{-1}{2} = -\frac{1}{2}$.
+    We can see that only one of the pairs \(1, -2\) and \(-1, 2\) are considered
+    coprime, which is correct as \(\frac{1}{-2} = \frac{-1}{2} = -\frac{1}{2}\).
     We can also see that -1 and -2 are not considered coprime, which is again
-    correct as it is equivalent to $\frac{1}{2}$.
+    correct as it is equivalent to \(\frac{1}{2}\).
 
     We can now put all of this together to obtain a fully featured linear search
     algorithm on the set of rational numbers:
 
-\begin{lstlisting}[language=Pascal, caption=Linear search on $\mathbb{Q}$ implementation in Pascal]
+\begin{lstlisting}[language=Pascal, caption=Linear search on \(\mathbb{Q}\) implementation in Pascal]
 procedure linear_search(out o_x: integer;
                         out o_y: integer);
 var
@@ -435,7 +436,7 @@ end;
     \section{Binary search}
 
     At last! The binary search algorithm is significantly faster than the
-    linear search, in the average case (being $O(\log(n))$).
+    linear search, in the average case (being \(O(\log(n))\)).
 
     \subsection{Basic binary}
 
@@ -491,10 +492,10 @@ end;
     Continuing the theme of binary and powers of two, we can simply check the
     ``bound'' between each of the adjacent powers of 2, ie first 1-2, then 2-4,
     then 4-8 (note that these are the good old fashioned strict upper bound
-    ranges, so there is no overlap). This will converge to some number $n$ in
+    ranges, so there is no overlap). This will converge to some number \(n\) in
     logarithmic time, again. However, this does not account for negative
     numbers - what we can easily do is simply consider the \emph{absolute}
-    value of the user's number $\abs{n}$. We need then only ask if it is
+    value of the user's number \(\abs{n}\). We need then only ask if it is
     negative once, at the end. If it is negative, we will need to ``flip'' the
     range, bearing in mind to increase the new lower bound and decrease the new
     upper bound, to make them non-strict and strict, respectively. This leaves
@@ -546,7 +547,7 @@ end;
 \end{lstlisting}
 
     Using this, we can successfully perform a binary search on the set of all
-    integers $\mathbb{Z}$. In fact, we only need to first call this subroutine
+    integers \(\mathbb{Z}\). In fact, we only need to first call this subroutine
     to determine the bounds, and then let the previous function from listing
     \ref{lst:binarysearch} do the rest.
 
@@ -581,7 +582,7 @@ end;
     ask questions about the absolute value of the user's number and then ask if
     it is negative:
 
-\begin{lstlisting}[caption=Binary search on $\mathbb{Q}$ in pseudocode]
+\begin{lstlisting}[caption=Binary search on \(\mathbb{Q}\) in pseudocode]
 Ask if the user's number is 0
 Set the lower and upper bound to 0/1 and 1/0
 While you haven't guessed the user's number
@@ -593,7 +594,7 @@ While you haven't guessed the user's number
 
     This can be implemented like so in Pascal:
 
-\begin{lstlisting}[language=Pascal, caption=Binary search on $\mathbb{Q}$ in Pascal]
+\begin{lstlisting}[language=Pascal, caption=Binary search on \(\mathbb{Q}\) in Pascal]
 procedure binary_search(out o_x: integer;
                         out o_y: integer);
 var
@@ -647,7 +648,7 @@ end;
     only represent a subset of these).
 
     It's also not entirely user-friendly, in that if a user decides on a crazy
-    fraction like $\frac{51}{97}$, they have to do a lot of mental maths to
+    fraction like \(\frac{51}{97}\), they have to do a lot of mental maths to
     answer the questions. However, really there isn't any way around this if you
     want to stay true to the binary search idea of eliminating many possible
     guesses simultaneously.
@@ -658,9 +659,9 @@ end;
     interface. First, I wrote a number of procedures to go with each algorithm,
     prefixed with ``perform\_''. They mainly just printed some information and
     formatted the results to the user. For example, to go with the binary search
-    on $\mathbb{Z}$:
+    on \(\mathbb{Z}\):
 
-\begin{lstlisting}[language=Pascal, caption=Binary search on $\mathbb{Z}$ wrapper procedure]
+\begin{lstlisting}[language=Pascal, caption=Binary search on \(\mathbb{Z}\) wrapper procedure]
 procedure perform_bsearch;
 var
     guess: integer;
