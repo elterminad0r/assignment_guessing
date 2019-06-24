@@ -33,11 +33,11 @@
 
     Therefore, essentially we need only to implement binary and linear search
     where the ``comparison function'' delegates to the user.  However,
-    interpolation search, which has the complexity \(O(\log(\log(n)))\) (on
+    interpolation search, which has the complexity \(\BigO(\log(\log(n)))\) (on
     uniform data sets, which we can assume a user-generated target is), requires
     knowledge of the \emph{value} of the target, so it can be interpolated on
     the current upper and lower bounds. This means we will only achieve the
-    \(O(\log(n))\) complexity of binary search.
+    \(\BigO(\log(n))\) complexity of binary search.
 
     Sadly, we also won't be able to implement any such search algorithm for the
     set of reals \(\mathbb{R}\), or any set with equivalent or higher cardinality
@@ -436,7 +436,7 @@ end;
     \section{Binary search}
 
     At last! The binary search algorithm is significantly faster than the
-    linear search, in the average case (being \(O(\log(n))\)).
+    linear search, in the average case (being \(\BigO(\log(n))\)).
 
     \subsection{Basic binary}
 

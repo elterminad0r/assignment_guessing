@@ -40,6 +40,9 @@
 \RequirePackage{amssymb}
 % Define an \abs{} command for absolute value (used for cardinality)
 \DeclarePairedDelimiter\abs\lvert\rvert
+% Define a pretty operator for big O. Generally it's a good idea to do things
+% like this as commands, so that you can easily change the typesetting later.
+\DeclareMathOperator\BigO{\mathcal O}
 
 % Don't indent the start of paragraphs
 \RequirePackage[parfill]{parskip}
